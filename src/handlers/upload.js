@@ -81,6 +81,17 @@ async function upload (options) {
     } else {
       hostList = options.host
     }
+
+    let payAccept
+    if (options.pull) {
+      if (!options.pullServerURL || !options.pullServerSecret) {
+        throw new Error('Pull payment option requires pullServerURL and pullServerSecret.')
+      }
+      payAccept = ['interledger-stream', 'interledger-pull']
+    } else {
+      payAccept = 'interledger-stream'
+    }
+
     const cleanHostList = cleanHostListUrls(hostList)
     statusIndicator.start('Calculating Max Price')
     const maxPrice = await unitsPerHost(options)
@@ -128,7 +139,7 @@ async function upload (options) {
     statusIndicator.start(`Uploading to ${validHostList.length} host(s)`)
 
     const uploadHostsResponse = await uploadManifestToHosts(statusIndicator,
-      validHostList, options.duration, maxPrice, generatedManifestObj)
+      validHostList, payAccept, options.duration, maxPrice, options.pullServerURL, options.pullServerSecret, generatedManifestObj)
 
     if (uploadHostsResponse.success.length > 0) {
       statusIndicator.start('Updating Codius State File')

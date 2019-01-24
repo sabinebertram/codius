@@ -72,13 +72,16 @@ function getParsedResponses (responses, currency, status) {
   return parsedResponses
 }
 
-async function fetchUploadManifest (host, duration, maxPrice, manifestJson) {
+async function fetchUploadManifest (host, payAccept, duration, maxPrice, pullServerURL, pullServerSecret, manifestJson) {
   const fetchFunction = fetch(`${host}/pods?duration=${duration}`, {
     headers: {
-      Accept: `application/codius-v${config.version.codius.min}+json`,
+      'Accept': `application/codius-v${config.version.codius.min}+json`,
+      'Pay-Accept': payAccept.toString(),
       'Content-Type': 'application/json'
     },
     maxPrice: maxPrice.toString(),
+    pullServerURL,
+    pullServerSecret,
     method: 'POST',
     body: JSON.stringify(manifestJson),
     timeout: FETCH_TIMEOUT
@@ -98,11 +101,11 @@ async function extendManifestByHashOnHosts (host, duration, maxPrice, manifestHa
   return fetchPromise(fetchFunction, host, FETCH_TIMEOUT)
 }
 
-async function uploadManifestToHosts (status, hosts, duration, maxPrice, manifestJson) {
+async function uploadManifestToHosts (status, hosts, payAccept, duration, maxPrice, pullServerURL, pullServerSecret, manifestJson) {
   const currency = await getCurrencyDetails()
   logger.debug(`Upload to Hosts: ${JSON.stringify(hosts)} Duration: ${duration}`)
   const uploadPromises = hosts.map((host) => {
-    return fetchUploadManifest(host, duration, maxPrice, manifestJson)
+    return fetchUploadManifest(host, payAccept, duration, maxPrice, pullServerURL, pullServerSecret, manifestJson)
   })
   const responses = await Promise.all(uploadPromises)
   return getParsedResponses(responses, currency, status)

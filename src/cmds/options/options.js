@@ -67,6 +67,31 @@ const tail = {
   }
 }
 
+const pull = {
+  'pull': {
+    alias: 'p',
+    type: 'boolean',
+    default: false,
+    description: 'Prefer pull payment over push payment. Requires pullServerURL and pullServerSecret.'
+  }
+}
+
+const pullServerURL = {
+  'pullServerURL': {
+    alias: 'r',
+    type: 'string',
+    description: 'Public URL of pull payment SPSP server, e.g. \'http://mypullserver.example.com\'.'
+  }
+}
+
+const pullServerSecret = {
+  'pullServerSecret': {
+    alias: 's',
+    type: 'string',
+    description: 'Bearer token to communicate with the pull payment server.'
+  }
+}
+
 const addHostEnv = {
   'add-host-env': {
     alias: 'a',
@@ -213,7 +238,10 @@ const uploadOptions = {
   ...overwriteCodiusStateFile,
   ...assumeYes,
   ...debug,
-  ...tail
+  ...tail,
+  ...pull,
+  ...pullServerURL,
+  ...pullServerSecret
 }
 
 const extendManifestOptions = {
